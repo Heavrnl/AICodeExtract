@@ -1,5 +1,3 @@
 flask
-torch
-transformers
 requests
-accelerate
+llama-cpp-python
