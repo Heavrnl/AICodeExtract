@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from llama_cpp import Llama
-from send_code import upload
 import gc
 
 app = Flask(__name__)
@@ -11,34 +10,35 @@ model_path = "./qwen2-0_5b-instruct-q4_k_m.gguf"
 model = Llama(model_path=model_path, n_ctx=2048, n_threads=4)
 
 
-def get_response(input_text):
-    #    prompt = f"从以下文本中提取验证码。只输出验证码，不要有任何其他文字。\n\n文本：{input_text}\n\n验证码(如果没有验证码，输出'None'):"
-    prompt = f"从以下文本中提取验证码。只输出验证码，不要有任何其他文字。如果没有验证码，只输出'None'。\n\n文本：{input_text}\n\n验证码："
+def get_response(input_text, prompt_template):
+    prompt = prompt_template.format(input_text=input_text)
+    print("prompt:" + prompt)
     output = model(prompt, max_tokens=20, echo=False, temperature=0.05)
     print(f"Raw output: {output}")
     response = output['choices'][0]['text'].strip()
+    print("response:" + response)
     # 后处理逻辑
-    response = response.split('\n')[0].strip()
+
     # 清理内存
     gc.collect()
 
     return response
 
 
-@app.route('/extract', methods=['POST'])
-def extract_verification_code():
+@app.route('/process', methods=['POST'])
+def process_text():
     input_data = request.json.get('text')
-    print("text:" + input_data, flush=True)
-    if not input_data:
-        return jsonify({'error': 'No input text provided'}), 400
+    prompt_template = request.json.get('prompt_template')
+    print("prompt_template:" + prompt_template)
+    print("input_data:" + input_data)
 
-    verification_code = get_response(input_data)
-    print("verification_code:" + verification_code, flush=True)
+    if not input_data or not prompt_template:
+        return jsonify({'error': 'No input text or prompt template provided'}), 400
 
-    if verification_code and verification_code.lower() != 'none':
-        upload(verification_code)
+    response = get_response(input_data, prompt_template)
+    print("Response: " + response, flush=True)
 
-    return jsonify({'verification_code': verification_code}), 200
+    return jsonify({'response': response}), 200
 
 
 if __name__ == '__main__':
