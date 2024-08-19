@@ -1,0 +1,18 @@
+version: '3'
+services:
+  qwen:
+    build: .
+    container_name: qwen
+    ports:
+      - "48775:5000"
+    volumes:
+      - .:/app
+    environment:
+      - MODEL_PATH=./model
+    restart: always
+    networks:
+      - mail2telegram  # 使用共享网络
+
+networks:
+  mail2telegram:
+    external: true  # 使用外部创建的共享网络
