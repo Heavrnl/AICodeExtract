@@ -1,9 +1,9 @@
 ```bash
-git clone https://github.com/Heavrnl/AICodeExtract.git
+git clone https://github.com/Heavrnl/QwenResponder.git
 ```
 
 ```bash
-cd AICodeExtract
+cd QwenResponder
 ```
 
 ```bash
