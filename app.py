@@ -29,6 +29,8 @@ def get_response(input_text, prompt_template):
 def process_text():
     input_data = request.json.get('text')
     prompt_template = request.json.get('prompt_template')
+    if not  prompt_template:
+        prompt_template = "You are a helpful assistant.{input_text}"
     print("prompt_template:" + prompt_template)
     print("input_data:" + input_data)
 
